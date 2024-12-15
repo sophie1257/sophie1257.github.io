@@ -128,6 +128,13 @@
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
 
+    document.getElementById('toggleBtn').addEventListener('click', () => {
+      const sideBar = document.getElementById('sideBar');
+      const leftPosition = sideBar.style.left === '0px' ? '-250px' : '0px';
+      sideBar.style.left = leftPosition;
+    });
+    
+
      // 세종시 경계선 표시
     fetch('/static/행정동_ver20230701.geojson')
       .then(response => response.json())
