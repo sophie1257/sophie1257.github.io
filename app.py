@@ -1,90 +1,83 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
-# Flask 앱 생성
 app = Flask(__name__)
+CORS(app)
 
 # SQLAlchemy 데이터베이스 설정
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/sejong_protected_zone'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# 사용자 모델 정의
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+# 세종시 보호구역 데이터
+zones = [
+    { 
+        "name": "Zone 1", 
+        "lat": 36.528872, 
+        "lon": 127.367796, 
+        "address": "세종시 고운동", 
+        "population": 1200, 
+        "accidents": 3 
+    },
+    {
+        "name": "Zone 2", 
+        "lat": 36.464646, 
+        "lon": 127.280006, 
+        "address": "세종시 아름동", 
+        "population": 800, 
+        "accidents": 5 
+    },
+    { 
+        "name": "Zone 3", 
+        "lat": 36.679749, 
+        "lon": 127.205951, 
+        "address": "세종시 반곡동", 
+        "population": 950, 
+        "accidents": 2 
+    },
+    { 
+        "name": "Zone 4", 
+        "lat": 36.562973, 
+        "lon": 127.283338, 
+        "address": "세종시 도담동", 
+        "population": 1100, 
+        "accidents": 4 
+    },
+    { 
+        "name": "Zone 5", 
+        "lat": 36.722422, 
+        "lon": 127.157880, 
+        "address": "세종시 소담동", 
+        "population": 650, 
+        "accidents": 1 
+    }
+]
 
-# 기본 경로 설정 ("/")
 @app.route('/')
 def home():
-    return render_template('index.html')  # test.html 렌더링
+    return render_template('index.html')
 
-# 로그인 페이지
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-
-        # SQLAlchemy를 사용해 사용자 인증
-        user = User.query.filter_by(email=email, password=password).first()
-        if user:
-            return '로그인 성공!'
-        else:
-            return '로그인 실패: 이메일 또는 비밀번호를 확인하세요.'
-    return render_template('login.html')
-
-# 회원가입 페이지
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-
-        # SQLAlchemy를 사용해 사용자 추가
-        new_user = User(email=email, password=password)
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            return '회원가입 성공!'
-        except Exception as e:
-            db.session.rollback()
-            return f'회원가입 실패: {e}'
-    return render_template('register.html')
-
-# 'Contact' 페이지 렌더링
-@app.route('/position')
-def contact():
-    return render_template('position.html')
-
-@app.route('/roadview_search')
-def roadview_search():
-    return render_template('roadview_search.html')  # 로드뷰 페이지
-
-# 'roadview_search' 페이지 렌더링
 @app.route('/page')
 def page():
-    return render_template('page.html')  # 로드뷰 페이지
+    return render_template('page.html', zones=zones)
 
-# 검색 페이지 렌더링
 @app.route('/search')
 def search():
-    return render_template('search.html')  # 검색 
+    return render_template('search.html')
 
-# 검색 페이지 렌더링
-@app.route('/반경')
-def 반경():
-    return render_template('반경.html')
+@app.route('/roadview_search')
+def roadview():
+    return render_template('roadview_search.html')
 
-# 검색 페이지 렌더링
+@app.route('/api/zones')
+def get_zones():
+    return jsonify(zones)
+
+#지도타입바꾸기기
 @app.route('/traffic')
 def traffic():
     return render_template('traffic.html')
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # 데이터베이스 테이블 생성
-    # 5507번 포트에서 서버 실행
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
