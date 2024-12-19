@@ -86,5 +86,4 @@ def traffic():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # 데이터베이스 테이블 생성
-    # 5507번 포트에서 서버 실행
     app.run(debug=True)
