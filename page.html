@@ -164,16 +164,17 @@
       { icon: 'bi bi-search', color: 'white', link: '/search.html' },
       { icon: 'bi bi-eye', color: 'lightpink', link: '/roadview_search.html' },
       { icon: 'bi bi-layers', color: 'lightyellow', link: '/traffic.html' },
-      { icon: 'bi bi-geo-alt', color: 'lightgreen', link: '/ltraffic.html' },
-      { icon: 'bi bi-map', color: 'skyblue', link: '/traffic.html' },
+      { icon: 'bi bi-geo-alt', color: 'lightgreen', action: goToCurrentLocation },
+      { icon: 'bi bi-map', color: 'skyblue', action: goToSejongCenter },
     ];
 
     const CustomButtonControl = L.Control.extend({
       options: { position: 'topright' },
-      initialize: function (icon, color, link) {
+      initialize: function (icon, color, link, action) {
         this.icon = icon;
         this.color = color;
         this.link = link;
+        this.action = action;
       },
       onAdd: function () {
         const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -183,14 +184,18 @@
         container.style.height = '40px';
         container.style.cursor = 'pointer';
         container.onclick = () => {
-          window.open(this.link, '_blank');
+          if (this.action) {
+            this.action();
+          } else if (this.link) {
+            window.open(this.link, '_blank');
+          }
         };
         return container;
       },
     });
 
     buttonConfigs.forEach(config => {
-      map.addControl(new CustomButtonControl(config.icon, config.color, config.link));
+      map.addControl(new CustomButtonControl(config.icon, config.color, config.link, config.action));
     });
 
     document.getElementById("regionSelect").addEventListener("change", function () {
@@ -215,6 +220,27 @@
         alert("분석 옵션을 선택하세요.");
       }
     });
+
+    function goToCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude } = position.coords;
+            map.setView([latitude, longitude], 15);
+            L.marker([latitude, longitude]).addTo(map).bindPopup("현재 위치").openPopup();
+          },
+          () => {
+            alert("현재 위치를 가져올 수 없습니다.");
+          }
+        );
+      } else {
+        alert("이 브라우저는 위치 서비스를 지원하지 않습니다.");
+      }
+    }
+
+    function goToSejongCenter() {
+      map.setView([36.50972725, 127.2591418], 12);
+    }
 
     function scrollToSection(id) {
       const section = document.getElementById(id);
