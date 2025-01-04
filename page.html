@@ -67,7 +67,7 @@
       z-index: 1000;
     }
 
-    .dropdown-container {
+    .dropdown-container, .search-container, .checkbox-container {
       margin: 10px 10px 20px 10px;
     }
 
@@ -85,6 +85,12 @@
       <li><a href="#">설정</a></li>
       <li><a href="#">도움말</a></li>
       <li>
+        <div class="checkbox-container">
+          <label><input type="checkbox" id="fatalAccident" checked> 사망사고</label>
+          <label><input type="checkbox" id="seriousInjury"> 중상사고</label>
+          <label><input type="checkbox" id="minorInjury"> 경상사고</label>
+          <label><input type="checkbox" id="propertyDamage"> 부상신고</label>
+        </div>
         <div class="dropdown-container">
           <div class="mb-3">
             <label for="regionSelect" class="form-label">분석</label>
@@ -105,6 +111,16 @@
               <option value="optimal-zone">최적지 선정</option>
             </select>
           </div>
+        </div>
+        <div class="search-container">
+          <label for="accidentType" class="form-label">사고 부문</label>
+          <select id="accidentType" class="form-select">
+            <option value="default" selected>사고 부문을 선택하세요</option>
+            <option value="elderly-pedestrian">노인 보행자 사고</option>
+            <option value="elderly-driver">노인 운전자 사고</option>
+            <option value="children-accident">어린이 사고</option>
+          </select>
+          <button id="searchButton" class="btn btn-warning w-100 mt-2">검색</button>
         </div>
       </li>
     </ul>
@@ -144,21 +160,45 @@
       popupAnchor: [0, -32]
     });
 
-    const clusterData = [
-      { lat: 36.528835, lon: 127.368141, address: "세종특별자치시 부강면 부강리 464-4" },
-      { lat: 36.464523, lon: 127.280050, address: "세종특별자치시 금남면 용포리 124" },
-      { lat: 36.680030, lon: 127.206199, address: "세종특별자치시 전의면 동교리 196-2" },
-      { lat: 36.562657, lon: 127.283087, address: "세종특별자치시 연서면 봉암리 215-7" },
-      { lat: 36.721783, lon: 127.157707, address: "세종특별자치시 소정면 소정리 49-2" }
-    ];
+    const accidentData = {
+      'elderly-pedestrian': [
+        { lat: 36.528835, lon: 127.368141, address: "노인 보행자 사고: 부강면" },
+        { lat: 36.464523, lon: 127.280050, address: "노인 보행자 사고: 금남면" }
+      ],
+      'elderly-driver': [
+        { lat: 36.680030, lon: 127.206199, address: "노인 운전자 사고: 전의면" },
+        { lat: 36.562657, lon: 127.283087, address: "노인 운전자 사고: 연서면" }
+      ],
+      'children-accident': [
+        { lat: 36.721783, lon: 127.157707, address: "어린이 사고: 소정면" }
+      ]
+    };
 
-    const ahpData = [
-      { lat: 36.544355, lon: 127.274331, address: "세종특별자치시 연기면 아사디길 20" },
-      { lat: 36.543717, lon: 127.246965, address: "세종특별자치시 연기면 외왕길 7" },
-      { lat: 36.551629, lon: 127.282836, address: "세종특별자치시 연기면 잣띠길 58-2" },
-      { lat: 36.544188, lon: 127.275737, address: "세종특별자치시 연기면 당산로 113-5" },
-      { lat: 36.544291, lon: 127.258017, address: "세종특별자치시 연기면 원왕길 8-3" }
-    ];
+    document.getElementById("searchButton").addEventListener("click", function () {
+      const accidentType = document.getElementById("accidentType").value;
+      const fatalChecked = document.getElementById("fatalAccident").checked;
+      const seriousChecked = document.getElementById("seriousInjury").checked;
+      const minorChecked = document.getElementById("minorInjury").checked;
+      const propertyChecked = document.getElementById("propertyDamage").checked;
+
+      markerGroup.clearLayers();
+
+      if (accidentType in accidentData) {
+        accidentData[accidentType].forEach(location => {
+          if (
+            (fatalChecked && location.type === "fatal") ||
+            (seriousChecked && location.type === "serious") ||
+            (minorChecked && location.type === "minor") ||
+            (propertyChecked && location.type === "property")
+          ) {
+            const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
+            marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
+          }
+        });
+      } else {
+        alert("사고 부문을 선택하세요.");
+      }
+    });
 
     const buttonConfigs = [
       { icon: 'bi bi-search', color: 'white', link: '/search.html' },
@@ -196,29 +236,6 @@
 
     buttonConfigs.forEach(config => {
       map.addControl(new CustomButtonControl(config.icon, config.color, config.link, config.action));
-    });
-
-    document.getElementById("regionSelect").addEventListener("change", function () {
-      const value = this.value;
-      markerGroup.clearLayers();
-
-      if (value === "DBSCAN") {
-        clusterData.forEach(location => {
-          const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
-          marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
-        });
-      } else if (value === "AHP") {
-        ahpData.forEach(location => {
-          const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
-          marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
-        });
-      } else if (value === "custom-analysis") {
-        window.open('/dbscan.html', '_blank');
-      } else if (value === "clustering") {
-        window.open('/clustering.html', '_blank');
-      } else if (value === "default") {
-        alert("분석 옵션을 선택하세요.");
-      }
     });
 
     function goToCurrentLocation() {
