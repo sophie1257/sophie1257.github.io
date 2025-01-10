@@ -177,7 +177,7 @@
       },
       onAdd: function () {
         const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
-        container.innerHTML = <i class="${this.icon}"></i>;
+        container.innerHTML = `<i class="${this.icon}"></i>`;
         container.style.backgroundColor = this.color;
         container.style.width = '40px';
         container.style.height = '40px';
@@ -200,12 +200,12 @@
       if (value === "DBSCAN") {
         clusterData.forEach(location => {
           const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
-          marker.bindPopup(<b>주소:</b> ${location.address}).openPopup();
+          marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
         });
       } else if (value === "AHP") {
         ahpData.forEach(location => {
           const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
-          marker.bindPopup(<b>주소:</b> ${location.address}).openPopup();
+          marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
         });
       } else if (value === "custom-analysis") {
         window.open('/dbscan.html', '_blank');
