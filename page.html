@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>세종시 노인보호구역</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
@@ -30,7 +30,11 @@
     }
 
     .dropdown-container { margin: 10px 10px 20px 10px; }
-    .leaflet-control-custom { display: flex; justify-content: center; align-items: center; }
+    .leaflet-control-custom {
+      display: flex; justify-content: center; align-items: center;
+      /* 버튼 간 간격 (필요 없으면 주석 처리) */
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -50,6 +54,7 @@
               <option value="custom-analysis">DBSCAN분석</option>
             </select>
           </div>
+
           <div id="clusteringContainer">
             <label id="clusteringLabel" for="layerSelect" class="form-label">Clustering</label>
             <select id="layerSelect" class="form-select">
@@ -68,18 +73,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
+    // 지도 초기화
     const map = L.map('map').setView([36.50972725, 127.2591418], 12);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
+    // 사이드바 초기/토글
     document.addEventListener('DOMContentLoaded', () => {
       const sideBar = document.getElementById('sideBar');
       const savedState = localStorage.getItem('sideBarState');
       sideBar.style.left = savedState === 'open' ? '0px' : '-250px';
     });
-
     document.getElementById('toggleBtn').addEventListener('click', () => {
       const sideBar = document.getElementById('sideBar');
       const isOpen = sideBar.style.left === '0px';
@@ -87,8 +92,8 @@
       localStorage.setItem('sideBarState', isOpen ? 'closed' : 'open');
     });
 
+    // 마커 레이어/아이콘
     const markerGroup = L.layerGroup().addTo(map);
-
     const customIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/128/15598/15598807.png',
       iconSize: [50, 50],
@@ -96,6 +101,7 @@
       popupAnchor: [0, -32]
     });
 
+    // 샘플 데이터
     const clusterData = [
       { lat: 36.528835, lon: 127.368141, address: "세종특별자치시 부강면 부강리 464-4" },
       { lat: 36.464523, lon: 127.280050, address: "세종특별자치시 금남면 용포리 124" },
@@ -103,7 +109,6 @@
       { lat: 36.562657, lon: 127.283087, address: "세종특별자치시 연서면 봉암리 215-7" },
       { lat: 36.721783, lon: 127.157707, address: "세종특별자치시 소정면 소정리 49-2" }
     ];
-
     const ahpData = [
       { lat: 36.544355, lon: 127.274331, address: "세종특별자치시 연기면 아사디길 20" },
       { lat: 36.543717, lon: 127.246965, address: "세종특별자치시 연기면 외왕길 7" },
@@ -112,7 +117,7 @@
       { lat: 36.544291, lon: 127.258017, address: "세종특별자치시 연기면 원왕길 8-3" }
     ];
 
-    // 위치 추적용 변수
+    // -------- 내 위치 추적 토글 --------
     let geoWatchId = null;
     let userMarker = null;
     let accuracyCircle = null;
@@ -126,7 +131,6 @@
         (pos) => {
           const { latitude, longitude, accuracy } = pos.coords;
           const latlng = [latitude, longitude];
-
           if (!userMarker) {
             userMarker = L.marker(latlng).addTo(map).bindPopup('내 위치');
             accuracyCircle = L.circle(latlng, { radius: accuracy }).addTo(map);
@@ -143,21 +147,14 @@
         { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
       );
     }
-
     function stopLocate() {
-      if (geoWatchId !== null) {
-        navigator.geolocation.clearWatch(geoWatchId);
-        geoWatchId = null;
-      }
+      if (geoWatchId !== null) { navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
       if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
       if (accuracyCircle) { map.removeLayer(accuracyCircle); accuracyCircle = null; }
     }
+    function toggleLocate() { if (geoWatchId === null) startLocate(); else stopLocate(); }
 
-    function toggleLocate() {
-      if (geoWatchId === null) { startLocate(); } else { stopLocate(); }
-    }
-
-    // 버튼 구성
+    // 버튼 설정(기존 버튼들)
     const buttonConfigs = [
       { icon: 'bi bi-search', color: 'white',       link: 'search.html' },
       { icon: 'bi bi-eye',    color: 'lightpink',   link: 'roadview_search.html' },
@@ -166,25 +163,27 @@
       { icon: 'bi bi-map',    color: 'skyblue',     link: 'traffic.html' },
     ];
 
-    // ✅ 추가: index.html로 되돌아가는 버튼
-    const backButtonConfig = { icon: 'bi bi-arrow-left', color: 'orange', action: 'back' };
-
+    // 커스텀 컨트롤 (개별 크기 지정 가능)
     const CustomButtonControl = L.Control.extend({
       options: { position: 'topright' },
-      initialize: function (icon, color, link, action) {
-        this.icon = icon; this.color = color; this.link = link; this.action = action;
+      initialize: function (icon, color, link, action, customSize = null) {
+        this.icon = icon; this.color = color; this.link = link; this.action = action; this.customSize = customSize;
       },
       onAdd: function () {
         const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
         container.innerHTML = `<i class="${this.icon}"></i>`;
         container.style.backgroundColor = this.color;
-        container.style.width = '40px';
-        container.style.height = '40px';
         container.style.cursor = 'pointer';
-        container.title = this.action === 'back' ? 'index.html로 돌아가기' : '';
+        // 필요 시 개별 크기 지정
+        if (this.customSize) {
+          container.style.width  = this.customSize.width;
+          container.style.height = this.customSize.height;
+        }
         if (this.action === 'locate') {
+          container.title = '내 위치 추적/중지';
           container.onclick = () => toggleLocate();
         } else if (this.action === 'back') {
+          container.title = 'index.html로 돌아가기';
           container.onclick = () => { window.location.href = 'index.html'; };
         } else {
           container.onclick = () => window.open(this.link, '_blank');
@@ -193,27 +192,27 @@
       },
     });
 
-    // 기존 버튼 추가
+    // ✅ 맨 위: index.html로 되돌아가는 버튼 (크기 40×20 고정)
+    map.addControl(new CustomButtonControl('bi bi-arrow-left', 'orange', null, 'back', { width: '40px', height: '20px' }));
+
+    // 기존 버튼들(원래 크기 유지) 아래로 추가
     buttonConfigs.forEach(cfg => {
       map.addControl(new CustomButtonControl(cfg.icon, cfg.color, cfg.link, cfg.action));
     });
-    // ✅ 뒤로가기 버튼 추가
-    map.addControl(new CustomButtonControl(backButtonConfig.icon, backButtonConfig.color, null, backButtonConfig.action));
 
-    // 분석 셀렉트
+    // 분석 셀렉트 동작
     document.getElementById("regionSelect").addEventListener("change", function () {
       const value = this.value;
       markerGroup.clearLayers();
-
       if (value === "DBSCAN") {
-        clusterData.forEach(location => {
-          L.marker([location.lat, location.lon], { icon: customIcon })
-            .addTo(markerGroup).bindPopup(`<b>주소:</b> ${location.address}`);
+        clusterData.forEach(d => {
+          L.marker([d.lat, d.lon], { icon: customIcon }).addTo(markerGroup)
+            .bindPopup(`<b>주소:</b> ${d.address}`);
         });
       } else if (value === "AHP") {
-        ahpData.forEach(location => {
-          L.marker([location.lat, location.lon], { icon: customIcon })
-            .addTo(markerGroup).bindPopup(`<b>주소:</b> ${location.address}`);
+        ahpData.forEach(d => {
+          L.marker([d.lat, d.lon], { icon: customIcon }).addTo(markerGroup)
+            .bindPopup(`<b>주소:</b> ${d.address}`);
         });
       } else if (value === "custom-analysis") {
         window.open('dbscan.html', '_blank');
@@ -222,10 +221,12 @@
       }
     });
 
+    // 라벨 클릭 시 clustering.html 열기
     document.getElementById("clusteringLabel").addEventListener("click", function () {
       window.open('clustering.html', '_blank');
     });
 
+    // 셀렉트에서 'Clustering' 선택 시에도 열기
     const layerSelect = document.getElementById("layerSelect");
     if (layerSelect) {
       layerSelect.addEventListener("change", function () {
@@ -236,6 +237,7 @@
       });
     }
 
+    // 스크롤 함수
     function scrollToSection(id) {
       const section = document.getElementById(id);
       if (section) section.scrollIntoView({ behavior: 'smooth' });
