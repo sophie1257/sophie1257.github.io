@@ -114,18 +114,77 @@
       { lat: 36.544291, lon: 127.258017, address: "세종특별자치시 연기면 원왕길 8-3" }
     ];
 
+    // --------------------------
+    // 내 위치 추적 토글(📍 lightgreen 버튼)
+    // --------------------------
+    let geoWatchId = null;
+    let userMarker = null;
+    let accuracyCircle = null;
+
+    function startLocate() {
+      if (!('geolocation' in navigator)) {
+        alert('이 브라우저는 위치 정보를 지원하지 않아요.');
+        return;
+      }
+      geoWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy } = pos.coords;
+          const latlng = [latitude, longitude];
+
+          if (!userMarker) {
+            userMarker = L.marker(latlng).addTo(map).bindPopup('내 위치');
+            accuracyCircle = L.circle(latlng, { radius: accuracy }).addTo(map);
+          } else {
+            userMarker.setLatLng(latlng);
+            accuracyCircle.setLatLng(latlng).setRadius(accuracy);
+          }
+          if (map.getZoom() < 15) map.setView(latlng, 16, { animate: true });
+        },
+        (err) => {
+          alert('위치 권한이 거부되었거나 오류가 발생했습니다: ' + err.message);
+          stopLocate();
+        },
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
+      );
+    }
+
+    function stopLocate() {
+      if (geoWatchId !== null) {
+        navigator.geolocation.clearWatch(geoWatchId);
+        geoWatchId = null;
+      }
+      if (userMarker) {
+        map.removeLayer(userMarker);
+        userMarker = null;
+      }
+      if (accuracyCircle) {
+        map.removeLayer(accuracyCircle);
+        accuracyCircle = null;
+      }
+    }
+
+    function toggleLocate() {
+      if (geoWatchId === null) {
+        startLocate();
+      } else {
+        stopLocate();
+      }
+    }
+
+    // 버튼 구성: lightgreen 버튼을 locate 토글로 사용
     const buttonConfigs = [
-      { icon: 'bi bi-search', color: 'white', link: 'search.html' },
-      { icon: 'bi bi-eye', color: 'lightpink', link: 'roadview_search.html' },
+      { icon: 'bi bi-search', color: 'white',       link: 'search.html' },
+      { icon: 'bi bi-eye',    color: 'lightpink',   link: 'roadview_search.html' },
       { icon: 'bi bi-layers', color: 'lightyellow', link: 'traffic.html' },
-      { icon: 'bi bi-geo-alt', color: 'lightgreen', link: 'locate' },
-      { icon: 'bi bi-map', color: 'skyblue', link: 'traffic.html' },
+      { icon: 'bi bi-geo-alt',color: 'lightgreen',  action: 'locate' }, // ✅ 위치 추적 토글
+      { icon: 'bi bi-map',    color: 'skyblue',     link: 'traffic.html' },
     ];
 
+    // 커스텀 버튼 컨트롤 (action 지원)
     const CustomButtonControl = L.Control.extend({
       options: { position: 'topright' },
-      initialize: function (icon, color, link) {
-        this.icon = icon; this.color = color; this.link = link;
+      initialize: function (icon, color, link, action) {
+        this.icon = icon; this.color = color; this.link = link; this.action = action;
       },
       onAdd: function () {
         const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -134,13 +193,18 @@
         container.style.width = '40px';
         container.style.height = '40px';
         container.style.cursor = 'pointer';
-        container.onclick = () => window.open(this.link, '_blank');
+        if (this.action === 'locate') {
+          container.title = '내 위치 추적/중지';
+          container.onclick = () => toggleLocate();
+        } else {
+          container.onclick = () => window.open(this.link, '_blank');
+        }
         return container;
       },
     });
 
-    buttonConfigs.forEach(config => {
-      map.addControl(new CustomButtonControl(config.icon, config.color, config.link));
+    buttonConfigs.forEach(cfg => {
+      map.addControl(new CustomButtonControl(cfg.icon, cfg.color, cfg.link, cfg.action));
     });
 
     // 분석 셀렉트
@@ -165,12 +229,12 @@
       }
     });
 
-    // ✅ 라벨 클릭 시에만 clustering.html 열기 (컨테이너 클릭은 무시)
+    // 라벨 클릭 시에만 clustering.html 열기
     document.getElementById("clusteringLabel").addEventListener("click", function () {
       window.open('clustering.html', '_blank');
     });
 
-    // ✅ 셀렉트에서 'Clustering' 선택 시에도 열기
+    // 셀렉트에서 'Clustering' 선택 시에도 열기
     const layerSelect = document.getElementById("layerSelect");
     if (layerSelect) {
       layerSelect.addEventListener("change", function () {
@@ -188,5 +252,3 @@
   </script>
 </body>
 </html>
-
-
