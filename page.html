@@ -219,8 +219,8 @@ document.getElementById("regionSelect").addEventListener("change", function () {
 document.getElementById("clusteringContainer").addEventListener("click", function (e) {
   // 드롭다운을 펼치려는 클릭일 때도 곧바로 새 탭이 열리면 불편할 수 있으니,
   // 라벨 클릭일 때만 열리도록 조건을 주고 싶다면 아래 if문을 사용하세요.
-  // if (e.target.tagName.toLowerCase() === 'label') {
-  //   window.open('/clustering.html', '_blank');
+   if (e.target.tagName.toLowerCase() === 'label') {
+     window.open('/clustering.html', '_blank');
   // }
 
   // 컨테이너 어디를 눌러도 열리게 하려면 아래 한 줄만 사용
@@ -243,4 +243,5 @@ document.getElementById("layerSelect").addEventListener("change", function () {
   </script>
 </body>
 </html>
+
 
