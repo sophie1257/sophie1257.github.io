@@ -94,8 +94,8 @@
               <option value="AHP">AHP</option>
               <option value="custom-analysis">DBSCAN분석</option>
             </select>
-          </div>
-          <div>
+                    </div>
+          <div id="clusteringContainer">
             <label for="layerSelect" class="form-label">Clustering</label>
             <select id="layerSelect" class="form-select">
               <option value="default" selected>Clustering</option>
@@ -215,26 +215,24 @@ document.getElementById("regionSelect").addEventListener("change", function () {
   }
 });
 
-//드롭다운 컨테이너 클릭 시 새 탭 오픈
-document.getElementById("clusteringContainer").addEventListener("click", function (e) {
-  // 드롭다운을 펼치려는 클릭일 때도 곧바로 새 탭이 열리면 불편할 수 있으니,
-  // 라벨 클릭일 때만 열리도록 조건을 주고 싶다면 아래 if문을 사용하세요.
-   if (e.target.tagName.toLowerCase() === 'label') {
-     window.open('/clustering.html', '_blank');
-  // }
+// 드롭다운 컨테이너 클릭 시 새 탭 오픈
+const clusteringContainer = document.getElementById("clusteringContainer");
+if (clusteringContainer) {
+  clusteringContainer.addEventListener("click", function () {
+    window.open('clustering.html', '_blank'); // 같은 폴더라면 슬래시 제거
+  });
+}
 
-  // 컨테이너 어디를 눌러도 열리게 하려면 아래 한 줄만 사용
-  window.open('/clustering.html', '_blank');
-});
-
-//셀렉트에서 'Clustering' 선택 시 새 탭 오픈
-document.getElementById("layerSelect").addEventListener("change", function () {
-  if (this.value === "clustering") {
-    window.open('/clustering.html', '_blank');
-    // 선택값을 다시 기본값으로 돌리면 다음에 또 선택해도 동작함
-    this.value = 'default';
-  }
-});
+// 셀렉트에서 'Clustering' 선택 시 새 탭 오픈
+const layerSelect = document.getElementById("layerSelect");
+if (layerSelect) {
+  layerSelect.addEventListener("change", function () {
+    if (this.value === "clustering") {
+      window.open('clustering.html', '_blank'); // 같은 폴더라면 슬래시 제거
+      this.value = 'default';
+    }
+  });
+}
 
     function scrollToSection(id) {
       const section = document.getElementById(id);
@@ -243,5 +241,6 @@ document.getElementById("layerSelect").addEventListener("change", function () {
   </script>
 </body>
 </html>
+
 
 
