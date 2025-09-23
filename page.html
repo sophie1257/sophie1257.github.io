@@ -219,7 +219,7 @@ document.getElementById("regionSelect").addEventListener("change", function () {
 const clusteringContainer = document.getElementById("clusteringContainer");
 if (clusteringContainer) {
   clusteringContainer.addEventListener("click", function () {
-    window.open('clustering.html', '_blank'); // 같은 폴더라면 슬래시 제거
+    window.open('clustering.html', '_blank');
   });
 }
 
@@ -228,7 +228,7 @@ const layerSelect = document.getElementById("layerSelect");
 if (layerSelect) {
   layerSelect.addEventListener("change", function () {
     if (this.value === "clustering") {
-      window.open('clustering.html', '_blank'); // 같은 폴더라면 슬래시 제거
+      window.open('clustering.html', '_blank');
       this.value = 'default';
     }
   });
@@ -241,6 +241,7 @@ if (layerSelect) {
   </script>
 </body>
 </html>
+
 
 
 
