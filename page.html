@@ -215,13 +215,13 @@ document.getElementById("regionSelect").addEventListener("change", function () {
   }
 });
 
-// 드롭다운 컨테이너 클릭 시 새 탭 오픈
-const clusteringContainer = document.getElementById("clusteringContainer");
-if (clusteringContainer) {
-  clusteringContainer.addEventListener("click", function () {
-    window.open('clustering.html', '_blank');
-  });
-}
+// ✅ ① 드롭다운 컨테이너 클릭 시 새 탭 오픈
+document.getElementById("clusteringContainer").addEventListener("click", function (e) {
+  // 드롭다운을 펼치려는 클릭일 때도 곧바로 새 탭이 열리면 불편할 수 있으니,
+  // 라벨 클릭일 때만 열리도록 조건을 주고 싶다면 아래 if문을 사용하세요.
+   if (e.target.tagName.toLowerCase() === 'label') {
+     window.open('clustering.html', '_blank');
+   }
 
 // 셀렉트에서 'Clustering' 선택 시 새 탭 오픈
 const layerSelect = document.getElementById("layerSelect");
@@ -241,6 +241,7 @@ if (layerSelect) {
   </script>
 </body>
 </html>
+
 
 
 
