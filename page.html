@@ -89,20 +89,17 @@
           <div class="mb-3">
             <label for="regionSelect" class="form-label">분석</label>
             <select id="regionSelect" class="form-select">
-              <option value="default" selected>분석을 선택하세요</option>
+              <option value="default" selected>레이어를 선택하세요</option>
               <option value="DBSCAN">DBSCAN</option>
               <option value="AHP">AHP</option>
               <option value="custom-analysis">DBSCAN분석</option>
-              <option value="clustering">Clustering</option>
             </select>
           </div>
           <div>
-            <label for="layerSelect" class="form-label">레이어 선택</label>
+            <label for="layerSelect" class="form-label">Clustering</label>
             <select id="layerSelect" class="form-select">
-              <option value="default" selected>레이어를 선택하세요</option>
-              <option value="children-zone">어린이 보호구역</option>
-              <option value="elderly-zone">노인 보호구역</option>
-              <option value="optimal-zone">최적지 선정</option>
+              <option value="default" selected>Clustering</option>
+              <option value="clustering">Clustering</option>
             </select>
           </div>
         </div>
@@ -192,29 +189,52 @@
     buttonConfigs.forEach(config => {
       map.addControl(new CustomButtonControl(config.icon, config.color, config.link));
     });
+// 기존 regionSelect change 핸들러에서 이 부분은 제거(또는 주석 처리)
+// else if (value === "clustering") {
+//   window.open('/clustering.html', '_blank');
+// }
 
-    document.getElementById("regionSelect").addEventListener("change", function () {
-      const value = this.value;
-      markerGroup.clearLayers();
+document.getElementById("regionSelect").addEventListener("change", function () {
+  const value = this.value;
+  markerGroup.clearLayers();
 
-      if (value === "DBSCAN") {
-        clusterData.forEach(location => {
-          const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
-          marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
-        });
-      } else if (value === "AHP") {
-        ahpData.forEach(location => {
-          const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
-          marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
-        });
-      } else if (value === "custom-analysis") {
-        window.open('/dbscan.html', '_blank');
-      } else if (value === "clustering") {
-        window.open('/clustering.html', '_blank');
-      } else if (value === "default") {
-        alert("분석 옵션을 선택하세요.");
-      }
+  if (value === "DBSCAN") {
+    clusterData.forEach(location => {
+      const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
+      marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
     });
+  } else if (value === "AHP") {
+    ahpData.forEach(location => {
+      const marker = L.marker([location.lat, location.lon], { icon: customIcon }).addTo(markerGroup);
+      marker.bindPopup(`<b>주소:</b> ${location.address}`).openPopup();
+    });
+  } else if (value === "custom-analysis") {
+    window.open('/dbscan.html', '_blank');
+  } else if (value === "default") {
+    alert("분석 옵션을 선택하세요.");
+  }
+});
+
+//드롭다운 컨테이너 클릭 시 새 탭 오픈
+document.getElementById("clusteringContainer").addEventListener("click", function (e) {
+  // 드롭다운을 펼치려는 클릭일 때도 곧바로 새 탭이 열리면 불편할 수 있으니,
+  // 라벨 클릭일 때만 열리도록 조건을 주고 싶다면 아래 if문을 사용하세요.
+  // if (e.target.tagName.toLowerCase() === 'label') {
+  //   window.open('/clustering.html', '_blank');
+  // }
+
+  // 컨테이너 어디를 눌러도 열리게 하려면 아래 한 줄만 사용
+  window.open('/clustering.html', '_blank');
+});
+
+//셀렉트에서 'Clustering' 선택 시 새 탭 오픈
+document.getElementById("layerSelect").addEventListener("change", function () {
+  if (this.value === "clustering") {
+    window.open('/clustering.html', '_blank');
+    // 선택값을 다시 기본값으로 돌리면 다음에 또 선택해도 동작함
+    this.value = 'default';
+  }
+});
 
     function scrollToSection(id) {
       const section = document.getElementById(id);
@@ -223,3 +243,4 @@
   </script>
 </body>
 </html>
+
