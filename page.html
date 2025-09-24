@@ -8,31 +8,107 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
   <style>
-    body { font-family: 'Noto Sans', sans-serif; margin: 0; padding: 0; }
+    :root{
+      --primary:#1ba5c9;
+      --primary-dark:#0e7fa0;
+      --accent:#f5a623;
+      --bg:#f4f6f9;
+      --text:#09233b;
+      --muted:#8aa0ae;
+      --border:#d9e2ec;
+      --white:#ffffff;
+    }
+
+    /* 전체 배경/글자색 */
+    body { 
+      font-family: 'Noto Sans', sans-serif; 
+      margin: 0; padding: 0; 
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* 지도 */
     #map { height: 100vh; margin: 0; }
 
+    /* 사이드바 */
     .side-bar-wrapper {
       position: fixed; top: 0; left: -250px; width: 250px; height: 100vh;
-      background-color: white; overflow-y: auto; transition: left 0.5s ease;
+      background-color: var(--white);
+      border-right: 1px solid var(--border);
+      box-shadow: 0 6px 24px rgba(9,35,59,0.05);
+      overflow-y: auto; transition: left 0.5s ease;
       z-index: 999; padding-top: 60px;
     }
     .side-bar-wrapper ul { list-style-type: none; margin: 0; padding: 20px 10px; }
     .side-bar-wrapper ul > li { margin-bottom: 10px; }
+
+    /* 사이드바 링크 */
     .side-bar-wrapper ul > li > a {
-      color: black; text-decoration: none; display: block; padding: 15px; border-radius: 8px;
+      color: var(--text); text-decoration: none; display: block; 
+      padding: 12px 14px; border-radius: 8px;
+      transition: background-color .2s, color .2s;
     }
-    .side-bar-wrapper ul > li > a:hover { background-color: #555; }
+    .side-bar-wrapper ul > li > a:hover {
+      background-color: var(--primary);
+      color: var(--white);
+    }
 
+    /* 상단 토글 버튼 */
     .toggle-btn {
-      position: fixed; top: 20px; left: 20px; background-color: rgb(160, 215, 241);
-      color: black; border: none; border-radius: 5px; padding: 10px 15px;
+      position: fixed; top: 20px; left: 20px;
+      background-color: var(--accent);
+      color: var(--white);
+      border: none; border-radius: 8px; 
+      padding: 10px 14px; font-weight: 600;
       cursor: pointer; z-index: 1000;
+      box-shadow: 0 4px 12px rgba(245,166,35,0.25);
+      transition: transform .05s ease, background-color .2s ease;
+    }
+    .toggle-btn:hover{ background: #ee9f11; }
+    .toggle-btn:active{ transform: translateY(1px); }
+
+    /* 드롭다운 카드 */
+    .dropdown-container { 
+      margin: 10px 10px 20px 10px; 
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 4px 16px rgba(9,35,59,0.06);
     }
 
-    .dropdown-container { margin: 10px 10px 20px 10px; }
-    .leaflet-control-custom {
+    /* 라벨 */
+    .form-label{
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+
+    /* 셀렉트 스타일 (부트스트랩 오버라이드) */
+    .form-select{
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 32px 8px 12px;
+      border-radius: 10px;
+      transition: border-color .2s, box-shadow .2s;
+      background-color: #fff;
+    }
+    .form-select:focus{
+      border-color: var(--primary);
+      box-shadow: 0 0 0 .2rem rgba(27,165,201,.15);
+      outline: none;
+    }
+
+    /* Leaflet 커스텀 버튼(색상은 JS inline 그대로, 테두리/그림자만 정리) */
+    .leaflet-control-custom{
       display: flex; justify-content: center; align-items: center;
-      margin-top: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(9,35,59,0.08);
+      margin-top: 8px; /* 버튼 간 간격 */
+    }
+    .leaflet-control-custom i{
+      font-size: 18px;
     }
   </style>
 </head>
@@ -72,13 +148,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // 지도 초기화
+    // ======= 아래 스크립트는 요청대로 기존 코드 그대로 유지 =======
+
     const map = L.map('map').setView([36.50972725, 127.2591418], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // 사이드바 초기/토글
     document.addEventListener('DOMContentLoaded', () => {
       const sideBar = document.getElementById('sideBar');
       const savedState = localStorage.getItem('sideBarState');
@@ -91,7 +167,6 @@
       localStorage.setItem('sideBarState', isOpen ? 'closed' : 'open');
     });
 
-    // 마커 레이어/아이콘
     const markerGroup = L.layerGroup().addTo(map);
     const customIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/128/15598/15598807.png',
@@ -100,7 +175,6 @@
       popupAnchor: [0, -32]
     });
 
-    // 샘플 데이터
     const clusterData = [
       { lat: 36.528835, lon: 127.368141, address: "세종특별자치시 부강면 부강리 464-4" },
       { lat: 36.464523, lon: 127.280050, address: "세종특별자치시 금남면 용포리 124" },
@@ -116,7 +190,6 @@
       { lat: 36.544291, lon: 127.258017, address: "세종특별자치시 연기면 원왕길 8-3" }
     ];
 
-    // -------- 내 위치 추적 토글 --------
     let geoWatchId = null;
     let userMarker = null;
     let accuracyCircle = null;
@@ -153,7 +226,6 @@
     }
     function toggleLocate() { if (geoWatchId === null) startLocate(); else stopLocate(); }
 
-    // 버튼 설정(기존 버튼들)
     const buttonConfigs = [
       { icon: 'bi bi-search', color: 'white',       link: 'search.html' },
       { icon: 'bi bi-eye',    color: 'lightpink',   link: 'roadview_search.html' },
@@ -162,7 +234,6 @@
       { icon: 'bi bi-map',    color: 'skyblue',     link: 'traffic.html' },
     ];
 
-    // 커스텀 컨트롤 (개별 크기 지정 가능)
     const CustomButtonControl = L.Control.extend({
       options: { position: 'topright' },
       initialize: function (icon, color, link, action, customSize = {width:'40px',height:'40px'}) {
@@ -173,7 +244,6 @@
         container.innerHTML = `<i class="${this.icon}"></i>`;
         container.style.backgroundColor = this.color;
         container.style.cursor = 'pointer';
-        // 크기 지정
         container.style.width  = this.customSize.width;
         container.style.height = this.customSize.height;
         if (this.action === 'locate') {
@@ -189,18 +259,17 @@
       },
     });
 
-    // ✅ 맨 위: index.html로 되돌아가는 버튼 (80×40 크기)
+    // 맨 위: 뒤로가기(80x40) – 스크립트 유지
     map.addControl(new CustomButtonControl(
       'bi bi-arrow-left', 'grey', null, 'back',
       { width: '80px', height: '40px' }
     ));
 
-    // 기존 버튼들(40×40 고정) 추가
+    // 나머지 버튼(40x40)
     buttonConfigs.forEach(cfg => {
       map.addControl(new CustomButtonControl(cfg.icon, cfg.color, cfg.link, cfg.action));
     });
 
-    // 분석 셀렉트 동작
     document.getElementById("regionSelect").addEventListener("change", function () {
       const value = this.value;
       markerGroup.clearLayers();
@@ -221,12 +290,10 @@
       }
     });
 
-    // 라벨 클릭 시 clustering.html 열기
     document.getElementById("clusteringLabel").addEventListener("click", function () {
       window.open('clustering.html', '_blank');
     });
 
-    // 셀렉트에서 'Clustering' 선택 시에도 열기
     const layerSelect = document.getElementById("layerSelect");
     if (layerSelect) {
       layerSelect.addEventListener("change", function () {
@@ -237,7 +304,6 @@
       });
     }
 
-    // 스크롤 함수
     function scrollToSection(id) {
       const section = document.getElementById(id);
       if (section) section.scrollIntoView({ behavior: 'smooth' });
@@ -245,5 +311,3 @@
   </script>
 </body>
 </html>
-
-
