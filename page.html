@@ -180,7 +180,7 @@
           container.title = '내 위치 추적/중지';
           container.onclick = () => toggleLocate();
         } else if (this.action === 'back') {
-          container.title = 'index.html로 돌아가기';
+          container.title = '메인으로 돌아가기';
           container.onclick = () => { window.location.href = 'index.html'; };
         } else {
           container.onclick = () => window.open(this.link, '_blank');
@@ -191,7 +191,7 @@
 
     // ✅ 맨 위: index.html로 되돌아가는 버튼 (80×40 크기)
     map.addControl(new CustomButtonControl(
-      'bi bi-arrow-left', 'orange', null, 'back',
+      'bi bi-arrow-left', 'ivory', null, 'back',
       { width: '80px', height: '40px' }
     ));
 
@@ -245,3 +245,4 @@
   </script>
 </body>
 </html>
+
