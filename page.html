@@ -8,19 +8,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
   <style>
-    /* ===== Dashboard Palette ===== */
     :root{
-      --primary-600:#2E5BFF; /* 메인 파란색 */
-      --primary-500:#3C6CFF;
-      --primary-400:#6B8CFF;
-      --primary-100:#EAEFFF; /* 아주 연한 파란 */
-      --bg:#F5F7FB;          /* 페이지 배경 */
-      --text:#0B1F33;        /* 본문 텍스트 */
-      --muted:#90A3B4;
-      --border:#E3E8EF;
-      --white:#FFFFFF;
+      --primary:#1ba5c9;
+      --primary-dark:#0e7fa0;
+      --accent:#f5a623;
+      --bg:#f4f6f9;
+      --text:#09233b;
+      --muted:#8aa0ae;
+      --border:#d9e2ec;
+      --white:#ffffff;
     }
 
+    /* 전체 배경/글자색 */
     body { 
       font-family: 'Noto Sans', sans-serif; 
       margin: 0; padding: 0; 
@@ -28,111 +27,88 @@
       color: var(--text);
     }
 
+    /* 지도 */
     #map { height: 100vh; margin: 0; }
 
-    /* ===== Sidebar ===== */
+    /* 사이드바 */
     .side-bar-wrapper {
       position: fixed; top: 0; left: -250px; width: 250px; height: 100vh;
       background-color: var(--white);
       border-right: 1px solid var(--border);
-      box-shadow: 0 6px 24px rgba(11,31,51,0.05);
+      box-shadow: 0 6px 24px rgba(9,35,59,0.05);
       overflow-y: auto; transition: left 0.5s ease;
       z-index: 999; padding-top: 60px;
     }
     .side-bar-wrapper ul { list-style-type: none; margin: 0; padding: 20px 10px; }
     .side-bar-wrapper ul > li { margin-bottom: 10px; }
+
+    /* 사이드바 링크 */
     .side-bar-wrapper ul > li > a {
       color: var(--text); text-decoration: none; display: block; 
-      padding: 12px 14px; border-radius: 10px;
+      padding: 12px 14px; border-radius: 8px;
       transition: background-color .2s, color .2s;
     }
     .side-bar-wrapper ul > li > a:hover {
-      background-color: var(--primary-100);
-      color: var(--primary-600);
+      background-color: var(--primary);
+      color: var(--white);
     }
 
-    /* ===== Top-left sidebar toggle ===== */
+    /* 상단 토글 버튼 */
     .toggle-btn {
       position: fixed; top: 20px; left: 20px;
-      background-color: var(--primary-600);
+      background-color: var(--accent);
       color: var(--white);
-      border: none; border-radius: 10px; 
+      border: none; border-radius: 8px; 
       padding: 10px 14px; font-weight: 600;
       cursor: pointer; z-index: 1000;
-      box-shadow: 0 6px 20px rgba(46,91,255,0.25);
+      box-shadow: 0 4px 12px rgba(245,166,35,0.25);
       transition: transform .05s ease, background-color .2s ease;
     }
-    .toggle-btn:hover{ background: var(--primary-500); }
+    .toggle-btn:hover{ background: #ee9f11; }
     .toggle-btn:active{ transform: translateY(1px); }
 
-    /* ===== Dropdown card ===== */
+    /* 드롭다운 카드 */
     .dropdown-container { 
       margin: 10px 10px 20px 10px; 
-      background: var(--white);
+      background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 12px;
-      box-shadow: 0 4px 18px rgba(11,31,51,0.06);
+      box-shadow: 0 4px 16px rgba(9,35,59,0.06);
     }
+
+    /* 라벨 */
     .form-label{
       font-weight: 700;
-      color: var(--primary-600);
+      color: var(--primary-dark);
       margin-bottom: 6px;
     }
+
+    /* 셀렉트 스타일 (부트스트랩 오버라이드) */
     .form-select{
       border: 1px solid var(--border);
       color: var(--text);
       padding: 8px 32px 8px 12px;
-      border-radius: 12px;
+      border-radius: 10px;
       transition: border-color .2s, box-shadow .2s;
-      background-color: var(--white);
+      background-color: #fff;
     }
     .form-select:focus{
-      border-color: var(--primary-400);
-      box-shadow: 0 0 0 .2rem rgba(46,91,255,.12);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 .2rem rgba(27,165,201,.15);
       outline: none;
     }
 
-    /* ===== Leaflet top-right buttons (Dashboard style) ===== */
+    /* Leaflet 커스텀 버튼(색상은 JS inline 그대로, 테두리/그림자만 정리) */
     .leaflet-control-custom{
-      display:flex; justify-content:center; align-items:center;
-      border-radius: 12px;
-      margin-top: 10px; /* 버튼 간격 */
-      transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
-    }
-
-    /* 기본 버튼: 화이트 카드 + 파란 테두리/아이콘 */
-    .btn-tile{
-      width: 40px; height: 40px; /* 고정 */
-      background: var(--white);
+      display: flex; justify-content: center; align-items: center;
       border: 1px solid var(--border);
-      box-shadow: 0 6px 18px rgba(11,31,51,.06);
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(9,35,59,0.08);
+      margin-top: 8px; /* 버튼 간 간격 */
     }
-    .btn-tile i{
+    .leaflet-control-custom i{
       font-size: 18px;
-      color: var(--primary-600);
-    }
-    .btn-tile:hover{
-      background: var(--primary-100);
-      border-color: var(--primary-400);
-      box-shadow: 0 10px 22px rgba(11,31,51,.10);
-      transform: translateY(-1px);
-    }
-
-    /* 뒤로가기 버튼: 실색 + 흰 아이콘, 80×40 */
-    .btn-back{
-      width: 80px; height: 40px;
-      background: var(--primary-600);
-      border: 1px solid var(--primary-600);
-      box-shadow: 0 8px 22px rgba(46,91,255,.28);
-      color: var(--white);
-    }
-    .btn-back i{ color: var(--white); font-size: 18px; }
-    .btn-back:hover{
-      background: var(--primary-500);
-      border-color: var(--primary-500);
-      box-shadow: 0 12px 26px rgba(46,91,255,.32);
-      transform: translateY(-1px);
     }
   </style>
 </head>
@@ -172,7 +148,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    /* ========== 기존 JS 로직은 그대로 유지 ========== */
+    // ======= 아래 스크립트는 요청대로 기존 코드 그대로 유지 =======
 
     const map = L.map('map').setView([36.50972725, 127.2591418], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -214,10 +190,10 @@
       { lat: 36.544291, lon: 127.258017, address: "세종특별자치시 연기면 원왕길 8-3" }
     ];
 
-    // 위치 추적
     let geoWatchId = null;
     let userMarker = null;
     let accuracyCircle = null;
+
     function startLocate() {
       if (!('geolocation' in navigator)) {
         alert('이 브라우저는 위치 정보를 지원하지 않아요.');
@@ -250,7 +226,6 @@
     }
     function toggleLocate() { if (geoWatchId === null) startLocate(); else stopLocate(); }
 
-    // 기존 버튼 설정 (색상 값은 무시하고 CSS 클래스로 통일)
     const buttonConfigs = [
       { icon: 'bi bi-search', color: 'white',       link: 'search.html' },
       { icon: 'bi bi-eye',    color: 'lightpink',   link: 'roadview_search.html' },
@@ -259,32 +234,18 @@
       { icon: 'bi bi-map',    color: 'skyblue',     link: 'traffic.html' },
     ];
 
-    // 커스텀 컨트롤: 디자인은 CSS 클래스(대시보드 스타일)로 통일
     const CustomButtonControl = L.Control.extend({
       options: { position: 'topright' },
-      initialize: function (icon, color, link, action, customSize = null, variant = 'tile') {
-        this.icon = icon; this.color = color; this.link = link; this.action = action;
-        this.customSize = customSize; this.variant = variant;
+      initialize: function (icon, color, link, action, customSize = {width:'40px',height:'40px'}) {
+        this.icon = icon; this.color = color; this.link = link; this.action = action; this.customSize = customSize;
       },
       onAdd: function () {
         const container = L.DomUtil.create('button', 'leaflet-bar leaflet-control leaflet-control-custom');
         container.innerHTML = `<i class="${this.icon}"></i>`;
+        container.style.backgroundColor = this.color;
         container.style.cursor = 'pointer';
-
-        // Variant별 스타일 클래스 적용
-        if (this.variant === 'back') {
-          container.classList.add('btn-back');
-        } else {
-          container.classList.add('btn-tile');
-        }
-
-        // 크기 커스텀(요청 반영)
-        if (this.customSize) {
-          container.style.width = this.customSize.width;
-          container.style.height = this.customSize.height;
-        }
-
-        // 동작
+        container.style.width  = this.customSize.width;
+        container.style.height = this.customSize.height;
         if (this.action === 'locate') {
           container.title = '내 위치 추적/중지';
           container.onclick = () => toggleLocate();
@@ -298,18 +259,17 @@
       },
     });
 
-    // 맨 위: 뒤로가기 버튼 (80×40, 파란 실색)
+    // 맨 위: 뒤로가기(80x40) – 스크립트 유지
     map.addControl(new CustomButtonControl(
-      'bi bi-arrow-left', '#2F3E46', null, 'back',
-      { width: '80px', height: '40px' }, 'back'
+      'bi bi-arrow-left', 'grey', null, 'back',
+      { width: '80px', height: '40px' }
     ));
 
-    // 나머지 버튼들: 40×40, 화이트 카드 스타일
+    // 나머지 버튼(40x40)
     buttonConfigs.forEach(cfg => {
-      map.addControl(new CustomButtonControl(cfg.icon, cfg.color, cfg.link, cfg.action, {width:'40px', height:'40px'}, 'tile'));
+      map.addControl(new CustomButtonControl(cfg.icon, cfg.color, cfg.link, cfg.action));
     });
 
-    // 분석 셀렉트
     document.getElementById("regionSelect").addEventListener("change", function () {
       const value = this.value;
       markerGroup.clearLayers();
@@ -330,12 +290,10 @@
       }
     });
 
-    // 라벨 클릭 시 clustering.html 열기
     document.getElementById("clusteringLabel").addEventListener("click", function () {
       window.open('clustering.html', '_blank');
     });
 
-    // 셀렉트에서 'Clustering' 선택 시에도 열기
     const layerSelect = document.getElementById("layerSelect");
     if (layerSelect) {
       layerSelect.addEventListener("change", function () {
@@ -353,3 +311,4 @@
   </script>
 </body>
 </html>
+
