@@ -24,7 +24,7 @@
     .side-bar-wrapper ul > li > a:hover { background-color: #555; }
 
     .toggle-btn {
-      position: fixed; top: 40px; left: 40px; background-color: rgb(160, 215, 241);
+      position: fixed; top: 20px; left: 20px; background-color: rgb(160, 215, 241);
       color: black; border: none; border-radius: 5px; padding: 10px 15px;
       cursor: pointer; z-index: 1000;
     }
@@ -32,7 +32,6 @@
     .dropdown-container { margin: 10px 10px 20px 10px; }
     .leaflet-control-custom {
       display: flex; justify-content: center; align-items: center;
-      /* 버튼 간 간격 (필요 없으면 주석 처리) */
       margin-top: 8px;
     }
   </style>
@@ -166,7 +165,7 @@
     // 커스텀 컨트롤 (개별 크기 지정 가능)
     const CustomButtonControl = L.Control.extend({
       options: { position: 'topright' },
-      initialize: function (icon, color, link, action, customSize = null) {
+      initialize: function (icon, color, link, action, customSize = {width:'40px',height:'40px'}) {
         this.icon = icon; this.color = color; this.link = link; this.action = action; this.customSize = customSize;
       },
       onAdd: function () {
@@ -174,11 +173,9 @@
         container.innerHTML = `<i class="${this.icon}"></i>`;
         container.style.backgroundColor = this.color;
         container.style.cursor = 'pointer';
-        // 필요 시 개별 크기 지정
-        if (this.customSize) {
-          container.style.width  = this.customSize.width;
-          container.style.height = this.customSize.height;
-        }
+        // 크기 지정
+        container.style.width  = this.customSize.width;
+        container.style.height = this.customSize.height;
         if (this.action === 'locate') {
           container.title = '내 위치 추적/중지';
           container.onclick = () => toggleLocate();
@@ -192,10 +189,13 @@
       },
     });
 
-    // ✅ 맨 위: index.html로 되돌아가는 버튼 
-    map.addControl(new CustomButtonControl('bi bi-arrow-left', 'orange', null, 'back', { width: '80px', height: '40px' }));
+    // ✅ 맨 위: index.html로 되돌아가는 버튼 (80×40 크기)
+    map.addControl(new CustomButtonControl(
+      'bi bi-arrow-left', 'orange', null, 'back',
+      { width: '80px', height: '40px' }
+    ));
 
-    // 기존 버튼들(원래 크기 유지) 아래로 추가
+    // 기존 버튼들(40×40 고정) 추가
     buttonConfigs.forEach(cfg => {
       map.addControl(new CustomButtonControl(cfg.icon, cfg.color, cfg.link, cfg.action));
     });
@@ -245,4 +245,3 @@
   </script>
 </body>
 </html>
-
