@@ -74,11 +74,6 @@ def search():
     return render_template('search.html')  # 검색 
 
 # 검색 페이지 렌더링
-@app.route('/반경')
-def 반경():
-    return render_template('반경.html')
-
-# 검색 페이지 렌더링
 @app.route('/traffic')
 def traffic():
     return render_template('traffic.html')
@@ -87,3 +82,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # 데이터베이스 테이블 생성
     app.run(debug=True)
+
