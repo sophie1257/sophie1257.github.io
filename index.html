@@ -6,31 +6,7 @@
     <title>세종시 노인보호구역 분석</title>
     
     <!-- Required Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js">
-const menuBtn = document.getElementById('menu-toggle');
-const sidebar = document.querySelector('.sidebar');
-
-if(menuBtn && sidebar){
-    menuBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
-            if(window.innerWidth <= 768){
-                sidebar.classList.remove('active');
-            }
-        });
-    });
-}
-
-window.addEventListener('resize', () => {
-    if(typeof map !== 'undefined'){
-        map.invalidateSize();
-    }
-});
-
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -75,7 +51,10 @@ window.addEventListener('resize', () => {
             z-index: 50;
         }
 
-        
+        .sidebar-trigger:hover + .sidebar,
+        .sidebar:hover {
+            left: 0;
+        }
 
         .sidebar-header {
             padding-bottom: 1.5rem;
@@ -170,7 +149,10 @@ window.addEventListener('resize', () => {
             transition: margin-left 0.3s ease;
         }
 
-        
+        .sidebar-trigger:hover ~ .main-content,
+        .sidebar:hover ~ .main-content {
+            margin-left: 280px;
+        }
 
         .header {
             background-color: white;
@@ -354,35 +336,9 @@ window.addEventListener('resize', () => {
                 grid-template-columns: 1fr;
             }
         }
-    
-#menu-toggle{display:none;}
-.chart-card{min-height:420px;}
-
-@media (max-width:768px){
-#menu-toggle{
-display:block;position:fixed;top:15px;left:15px;z-index:9999;border:none;
-background:white;padding:10px 14px;border-radius:8px;
-box-shadow:0 2px 10px rgba(0,0,0,.15);font-size:24px;cursor:pointer;
-}
-.sidebar{left:-280px;z-index:9998;}
-.sidebar.active{left:0;}
-.main-content{margin-left:0;}
-.header{padding-top:80px;}
-.header h1{font-size:1.6rem;}
-.header .lead{font-size:1rem;}
-.stats-grid,.charts-grid{grid-template-columns:1fr;}
-.overview-item{flex-direction:column;}
-.stat-card,.chart-card,.overview-card,.map-card{padding:1rem;}
-.stat-value{font-size:1.5rem;}
-#map{height:60vh;min-height:350px;}
-canvas{width:100% !important;height:auto !important;}
-}
-
-</style>
+    </style>
 </head>
 <body>
-
-<button id="menu-toggle">☰</button>
     <div class="layout-container">
         <div class="sidebar-trigger"></div>
         <aside class="sidebar">
@@ -645,7 +601,6 @@ canvas{width:100% !important;height:auto !important;}
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 plugins: {
                     title: { display: true, text: '노인 인구 변화 추이' }
                 }
@@ -667,7 +622,6 @@ canvas{width:100% !important;height:auto !important;}
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 plugins: {
                     title: { display: true, text: '교통사고 발생 추이' }
                 }
