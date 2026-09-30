@@ -3,74 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>세종시 노인보호구역 분석</title>
-    
-    <!-- Required Libraries -->
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
+    >
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <style>
+        /* =========================
+           기본 설정
+        ========================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
         html {
             scroll-behavior: smooth;
         }
-        
+
         body {
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family:
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
             background-color: #f9fafb;
+            color: #111827;
         }
-        
+
+        body.menu-open {
+            overflow: hidden;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         .layout-container {
             display: flex;
             min-height: 100vh;
         }
 
+
+        /* =========================
+           PC 사이드바
+        ========================= */
+
         .sidebar-trigger {
             position: fixed;
             left: 0;
             top: 0;
+
             width: 20px;
             height: 100vh;
+
             z-index: 49;
         }
 
         .sidebar {
             width: 280px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
-            padding: 1.5rem;
-            position: fixed;
             height: 100vh;
+
+            position: fixed;
             left: -280px;
             top: 0;
+
+            background: white;
+            border-right: 1px solid #e5e7eb;
+
+            padding: 1.5rem;
+
             overflow-y: auto;
+
             transition: left 0.3s ease;
+
             z-index: 50;
         }
 
-        .sidebar-trigger:hover + .sidebar,
+        /* PC hover */
+        .sidebar-trigger:hover + .mobile-menu-btn + .sidebar-overlay + .sidebar,
         .sidebar:hover {
             left: 0;
         }
 
+
+        /* =========================
+           사이드바 내부
+        ========================= */
+
         .sidebar-header {
             padding-bottom: 1.5rem;
             margin-bottom: 1.5rem;
+
             border-bottom: 1px solid #e5e7eb;
         }
 
         .sidebar-title {
             font-size: 1.25rem;
             font-weight: 600;
+
             color: #1e40af;
+
             margin: 0;
         }
 
         .nav-list {
             list-style: none;
+
             padding: 0;
             margin: 0;
         }
@@ -82,11 +136,18 @@
         .nav-link {
             display: flex;
             align-items: center;
+
             padding: 0.75rem 1rem;
+
             color: #4b5563;
+
             text-decoration: none;
+
             border-radius: 0.375rem;
-            transition: all 0.2s;
+
+            transition:
+                background 0.2s,
+                color 0.2s;
         }
 
         .nav-link:hover {
@@ -97,55 +158,100 @@
         .nav-link.active {
             background: #eff6ff;
             color: #1e40af;
+
             font-weight: 500;
         }
 
         .nav-icon {
             width: 1.5rem;
             height: 1.5rem;
+
             margin-right: 0.75rem;
+
+            flex-shrink: 0;
         }
+
+
+        /* =========================
+           프로젝트 현황
+        ========================= */
 
         .project-summary {
             margin-top: 2rem;
             padding-top: 1.5rem;
+
             border-top: 1px solid #e5e7eb;
         }
 
         .summary-title {
             font-size: 0.875rem;
             font-weight: 600;
+
             color: #6b7280;
+
             text-transform: uppercase;
             letter-spacing: 0.05em;
+
             margin-bottom: 1rem;
         }
 
         .summary-stat {
             display: flex;
             align-items: center;
+
             margin-bottom: 1rem;
             padding: 0.75rem;
+
             background: #f9fafb;
+
             border-radius: 0.375rem;
         }
 
         .summary-icon {
             width: 1.25rem;
             height: 1.25rem;
+
             margin-right: 0.75rem;
+
             color: #3b82f6;
+
+            flex-shrink: 0;
         }
 
         .summary-label {
             font-size: 0.875rem;
+
             color: #4b5563;
+
             margin: 0;
         }
 
+
+        /* =========================
+           모바일 메뉴
+        ========================= */
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        .sidebar-overlay {
+            display: none;
+        }
+
+
+        /* =========================
+           메인 콘텐츠
+        ========================= */
+
         .main-content {
             margin-left: 20px;
+
+            width: calc(100% - 20px);
+            min-width: 0;
+
             flex: 1;
+
             transition: margin-left 0.3s ease;
         }
 
@@ -154,46 +260,81 @@
             margin-left: 280px;
         }
 
+
+        /* =========================
+           Header
+        ========================= */
+
         .header {
             background-color: white;
+
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
             padding: 1.5rem 1rem;
+
             margin-bottom: 2rem;
+
             text-align: center;
         }
 
         .header h1 {
             font-size: 1.875rem;
             font-weight: bold;
+
             color: #1e40af;
+
             margin: 0;
         }
 
         .header .lead {
             font-size: 1.25rem;
+
             color: #4b5563;
+
             margin-top: 0.5rem;
+            margin-bottom: 0;
         }
+
+
+        /* =========================
+           콘텐츠
+        ========================= */
 
         .content-wrapper {
             max-width: 80rem;
+
             margin: 0 auto;
+
             padding: 0 1rem;
         }
 
+
+        /* =========================
+           통계 카드
+        ========================= */
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+
             gap: 1.5rem;
+
             margin-bottom: 2rem;
+
             scroll-margin-top: 2rem;
         }
 
         .stat-card {
             background: white;
+
             padding: 1.5rem;
+
             border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .stat-content {
@@ -204,85 +345,157 @@
         .stat-icon {
             width: 2rem;
             height: 2rem;
+
             margin-right: 1rem;
+
             color: #3b82f6;
+
+            flex-shrink: 0;
         }
 
         .stat-label {
             font-weight: bold;
+
             font-size: 1.25rem;
+
             color: #111827;
+
             margin: 0 0 0.5rem 0;
         }
 
         .stat-value {
             font-weight: bold;
+
             font-size: 1.75rem;
+
             color: #3b82f6;
+
             margin: 0;
         }
 
+
+        /* =========================
+           차트
+        ========================= */
+
         .charts-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
             gap: 1.5rem;
+
             margin-bottom: 2rem;
+
             scroll-margin-top: 2rem;
         }
 
         .chart-card {
             background: white;
+
             padding: 1.5rem;
+
             border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.1);
+
+            min-width: 0;
         }
 
         .chart-title {
             font-size: 1.125rem;
             font-weight: 600;
+
+            margin-top: 0;
             margin-bottom: 1rem;
+
             color: #1e40af;
         }
 
+        .chart-container {
+            position: relative;
+
+            width: 100%;
+            height: 320px;
+        }
+
+
+        /* =========================
+           지도
+        ========================= */
+
         .map-card {
             background: white;
+
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
             padding: 1.5rem;
+
             margin-bottom: 2rem;
+
             scroll-margin-top: 2rem;
         }
 
         .map-card .chart-title {
             color: #1e40af;
+
             font-size: 1.5rem;
             font-weight: 700;
+
             margin-bottom: 1.5rem;
+
             padding-bottom: 0.75rem;
+
             border-bottom: 2px solid #e5e7eb;
         }
 
         #map {
+            width: 100%;
             height: 400px;
+
             border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+            box-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.05);
+
             border: 2px solid #e5e7eb;
+
+            z-index: 1;
         }
+
+
+        /* =========================
+           프로젝트 개요
+        ========================= */
 
         .overview-card {
             background: white;
+
             padding: 1.5rem;
+
             border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.1);
+
             margin-bottom: 2rem;
+
             scroll-margin-top: 2rem;
         }
 
         .overview-title {
             font-size: 1.5rem;
             font-weight: 600;
+
+            margin-top: 0;
             margin-bottom: 1rem;
+
             color: #1e40af;
         }
 
@@ -293,367 +506,1548 @@
         .overview-item {
             display: flex;
             align-items: flex-start;
+
             gap: 1rem;
+
             margin-bottom: 1.5rem;
+        }
+
+        .overview-item:last-child {
+            margin-bottom: 0;
         }
 
         .overview-icon {
             flex-shrink: 0;
-            font-size: 1.5rem;
+
+            width: 1.5rem;
+            height: 1.5rem;
+
             margin-top: 0.25rem;
+
             color: #3b82f6;
         }
 
         .overview-item h3 {
             font-size: 1.125rem;
             font-weight: bold;
+
             margin: 0;
+
             color: #1e40af;
         }
 
         .overview-item p {
             margin: 0.5rem 0 0;
-            line-height: 1.5;
+
+            line-height: 1.6;
+
             font-size: 1rem;
+
             color: #4b5563;
         }
 
+
+        /* ==========================================
+           Tablet / Mobile
+           1024px 이하에서는 클릭형 메뉴로 변경
+        ========================================== */
+
         @media (max-width: 1024px) {
-            .sidebar {
-                left: -280px;
+
+            .sidebar-trigger {
+                display: none;
             }
 
             .main-content {
                 margin-left: 0;
+
+                width: 100%;
             }
 
+            /* PC hover 효과 제거 */
             .sidebar-trigger:hover ~ .main-content,
             .sidebar:hover ~ .main-content {
                 margin-left: 0;
+            }
+
+            .sidebar {
+                width: min(82vw, 300px);
+
+                left: -320px;
+
+                padding: 1.5rem;
+
+                z-index: 1001;
+
+                box-shadow:
+                    4px 0 18px rgba(0, 0, 0, 0.12);
+            }
+
+            /* JS에서 open 추가 */
+            .sidebar.open {
+                left: 0;
+            }
+
+            /* 햄버거 버튼 */
+            .mobile-menu-btn {
+                display: flex;
+
+                align-items: center;
+                justify-content: center;
+
+                position: fixed;
+
+                top: 16px;
+                left: 16px;
+
+                width: 46px;
+                height: 46px;
+
+                padding: 0;
+
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+
+                background: rgba(255, 255, 255, 0.96);
+
+                color: #1e40af;
+
+                box-shadow:
+                    0 2px 8px rgba(0, 0, 0, 0.12);
+
+                cursor: pointer;
+
+                z-index: 1002;
+            }
+
+            .mobile-menu-btn svg {
+                width: 25px;
+                height: 25px;
+            }
+
+            /* 사이드바가 열리면 버튼 숨김 */
+            body.menu-open .mobile-menu-btn {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            /* Overlay */
+            .sidebar-overlay {
+                display: block;
+
+                position: fixed;
+
+                inset: 0;
+
+                background:
+                    rgba(15, 23, 42, 0.45);
+
+                opacity: 0;
+                visibility: hidden;
+
+                transition:
+                    opacity 0.3s ease,
+                    visibility 0.3s ease;
+
+                z-index: 1000;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
             }
 
             .charts-grid {
                 grid-template-columns: 1fr;
             }
         }
+
+
+        /* =========================
+           Mobile
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            .header {
+                min-height: 90px;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+
+                padding:
+                    1.25rem 1rem
+                    1.25rem 4.5rem;
+
+                margin-bottom: 1.25rem;
+
+                text-align: left;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header .lead {
+                font-size: 0.95rem;
+
+                line-height: 1.4;
+            }
+
+            .content-wrapper {
+                padding: 0 0.75rem;
+            }
+
+            /* 통계 카드 2열 */
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+                gap: 0.75rem;
+
+                margin-bottom: 1.25rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-content {
+                align-items: flex-start;
+            }
+
+            .stat-icon {
+                width: 1.5rem;
+                height: 1.5rem;
+
+                margin-right: 0.65rem;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+
+                margin-bottom: 0.35rem;
+            }
+
+            .stat-value {
+                font-size: 1.35rem;
+            }
+
+            /* 차트 */
+            .charts-grid {
+                gap: 1rem;
+
+                margin-bottom: 1.25rem;
+            }
+
+            .chart-card {
+                padding: 1rem;
+            }
+
+            .chart-title {
+                font-size: 1.05rem;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+
+            /* 지도 */
+            .map-card {
+                padding: 1rem;
+
+                margin-bottom: 1.25rem;
+            }
+
+            .map-card .chart-title {
+                font-size: 1.25rem;
+
+                margin-bottom: 1rem;
+            }
+
+            #map {
+                height: 350px;
+            }
+
+            /* 프로젝트 개요 */
+            .overview-card {
+                padding: 1rem;
+            }
+
+            .overview-title {
+                font-size: 1.3rem;
+            }
+
+            .overview-item {
+                gap: 0.6rem;
+
+                margin-bottom: 1.25rem;
+            }
+
+            .overview-item h3 {
+                font-size: 1rem;
+            }
+
+            .overview-item p {
+                font-size: 0.9rem;
+
+                line-height: 1.6;
+            }
+        }
+
+
+        /* =========================
+           Small Mobile
+        ========================= */
+
+        @media (max-width: 480px) {
+
+            .mobile-menu-btn {
+                top: 12px;
+                left: 12px;
+
+                width: 44px;
+                height: 44px;
+            }
+
+            .header {
+                padding:
+                    1rem 0.75rem
+                    1rem 4rem;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header .lead {
+                font-size: 0.85rem;
+            }
+
+            /* 아주 작은 화면에서는 카드 1열 */
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-content {
+                align-items: center;
+            }
+
+            .stat-card {
+                padding: 1rem 1.25rem;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            #map {
+                height: 300px;
+            }
+
+            .sidebar {
+                width: 85vw;
+            }
+        }
     </style>
 </head>
+
+
 <body>
-    <div class="layout-container">
-        <div class="sidebar-trigger"></div>
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2 class="sidebar-title">세종시 노인보호구역</h2>
+
+<div class="layout-container">
+
+    <!-- PC hover 감지 영역 -->
+    <div class="sidebar-trigger"></div>
+
+
+    <!-- 모바일 햄버거 버튼 -->
+    <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        type="button"
+        aria-label="메뉴 열기"
+        aria-controls="sidebar"
+        aria-expanded="false"
+    >
+        <i data-lucide="menu"></i>
+    </button>
+
+
+    <!-- 모바일 Overlay -->
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- =========================
+         Sidebar
+    ========================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+        aria-label="주요 메뉴"
+    >
+
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">
+                세종시 노인보호구역
+            </h2>
+        </div>
+
+
+        <nav>
+
+            <ul class="nav-list">
+
+                <li class="nav-item">
+
+                    <a
+                        href="#top"
+                        class="nav-link active"
+                    >
+                        <i
+                            data-lucide="home"
+                            class="nav-icon"
+                        ></i>
+
+                        HOME
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        href="#stats"
+                        class="nav-link"
+                    >
+                        <i
+                            data-lucide="bar-chart-2"
+                            class="nav-icon"
+                        ></i>
+
+                        통계 현황
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        href="#map-section"
+                        class="nav-link"
+                    >
+                        <i
+                            data-lucide="navigation"
+                            class="nav-icon"
+                        ></i>
+
+                        현재 노인보호구역
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        href="#project"
+                        class="nav-link"
+                    >
+                        <i
+                            data-lucide="clipboard"
+                            class="nav-icon"
+                        ></i>
+
+                        프로젝트 개요
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        href="page.html"
+                        class="nav-link"
+                    >
+                        <i
+                            data-lucide="map"
+                            class="nav-icon"
+                        ></i>
+
+                        최적지
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        href="search.html"
+                        class="nav-link"
+                    >
+                        <i
+                            data-lucide="search"
+                            class="nav-icon"
+                        ></i>
+
+                        검색
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+
+        <!-- 프로젝트 현황 -->
+
+        <div class="project-summary">
+
+            <h3 class="summary-title">
+                프로젝트 현황
+            </h3>
+
+
+            <div class="summary-stat">
+
+                <i
+                    data-lucide="calendar"
+                    class="summary-icon"
+                ></i>
+
+                <p class="summary-label">
+                    마지막 업데이트: 2024.12.12
+                </p>
+
             </div>
-            
-            <nav>
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="#top" class="nav-link active">
-                            <i data-lucide="home" class="nav-icon"></i>
-                            HOME
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#stats" class="nav-link">
-                            <i data-lucide="bar-chart-2" class="nav-icon"></i>
-                            통계 현황
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#map-section" class="nav-link">
-                            <i data-lucide="navigation" class="nav-icon"></i>
-                             현재 노인보호구역
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#project" class="nav-link">
-                            <i data-lucide="clipboard" class="nav-icon"></i>
-                            프로젝트 개요
-                        </a>
-                    </li>
-                    <li class="nav-item"> 
-                        <a href="page.html" class="nav-link">
-                            <i data-lucide="map" class="nav-icon"></i>
-                            최적지
-                        </a>
-                    </li>
-                    <li class="nav-item"> 
-                        <a href="search.html" class="nav-link">
-                            <i data-lucide="search" class="nav-icon"></i>
-                            검색
-                        </a>
-                    </li>
-                </ul>
-            </nav>
 
-            <div class="project-summary">
-                <h3 class="summary-title">프로젝트 현황</h3>
-                <div class="summary-stat">
-                    <i data-lucide="calendar" class="summary-icon"></i>
-                    <p class="summary-label">마지막 업데이트: 2024.12.12</p>
-                </div>
-                <div class="summary-stat">
-                    <i data-lucide="check-circle" class="summary-icon"></i>
-                    <p class="summary-label">데이터 수집 완료</p>
-                </div>
-                <div class="summary-stat">
-                    <i data-lucide="trending-up" class="summary-icon"></i>
-                    <p class="summary-label">분석 진행률: 85%</p>
-                </div>
+
+            <div class="summary-stat">
+
+                <i
+                    data-lucide="check-circle"
+                    class="summary-icon"
+                ></i>
+
+                <p class="summary-label">
+                    데이터 수집 완료
+                </p>
+
             </div>
-        </aside>
 
-        <main class="main-content">
-            <header id="top" class="header">
-                <h1>세종시 노인보호구역</h1>
-                <p class="lead">노인의 안전한 보행을 위한 최적지 선정</p>
-            </header>
-            
-            <div class="content-wrapper">
-                <div id="stats" class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <i data-lucide="users" class="stat-icon"></i>
-                            <div>
-                                <p class="stat-label">노인 인구</p>
-                                <p class="stat-value">45,043명</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <i data-lucide="map-pin" class="stat-icon"></i>
-                            <div>
-                                <p class="stat-label">보호구역 수</p>
-                                <p class="stat-value">9개</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <i data-lucide="alert-triangle" class="stat-icon"></i>
-                            <div>
-                                <p class="stat-label">2023년 사망자 수</p>
-                                <p class="stat-value">23건</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <i data-lucide="shield" class="stat-icon"></i>
-                            <div>
-                                <p class="stat-label">CCTV 설치율</p>
-                                <p class="stat-value">33.3%</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="charts" class="charts-grid">
-                    <div class="chart-card">
-                        <h2 class="chart-title">노인 인구 추이</h2>
-                        <canvas id="populationChart"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <h2 class="chart-title">교통사고 추이</h2>
-                        <canvas id="accidentChart"></canvas>
-                    </div>
-                </div>
-                
-                <div id="map-section" class="map-card">
-                    <h2 class="chart-title">노인보호구역 지도</h2>
-                    <div id="map"></div>
-                </div>
-                
-                <div id="project" class="overview-card">
-                    <h2 class="overview-title">프로젝트 개요</h2>
-                    <div class="overview-content">
-                        <div class="overview-item">
-                            <i data-lucide="chevron-right" class="overview-icon"></i>
-                            <div>
-                                <h3>개발 목표</h3>
-                                <p>세종시의 노인보호구역 현황과 교통안전 시설 설치 현황을 파악하고, 노인 인구 밀집 지역과 교통사고 다발 지역을 중심으로 보호구역 최적지를 선정</p>
-                            </div>
-                        </div>
-                        <div class="overview-item">
-                            <i data-lucide="chevron-right" class="overview-icon"></i>
-                            <div>
-                                <h3>주요 기능</h3>
-                                <p>데이터 수집, 데이터 전처리, 데이터 모델링, 시각화 및 탐색을 통한 종합적인 분석</p>
-                            </div>
-                        </div>
-                        <div class="overview-item">
-                            <i data-lucide="chevron-right" class="overview-icon"></i>
-                            <div>
-                                <h3>기대 효과</h3>
-                                <p>노인 교통사고 감소, 보행 환경 개선, 지역사회 인식 제고, 노인 안전 정책 기반 마련</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+            <div class="summary-stat">
+
+                <i
+                    data-lucide="trending-up"
+                    class="summary-icon"
+                ></i>
+
+                <p class="summary-label">
+                    분석 진행률: 85%
+                </p>
+
             </div>
-        </main>
-    </div>
 
-    <script>
-        // Lucide 아이콘 초기화
-        lucide.createIcons();
+        </div>
 
-        // 네비게이션 링크 이벤트 처리
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const href = e.target.closest('.nav-link').getAttribute('href');
-                
-                if (!href.startsWith('#')) {
-                    e.preventDefault();
-                    window.location.href = href; // 수정된 부분: 같은 탭에서 열기
-                }
-            });
-        });    
+    </aside>
 
-        // 네비게이션 링크 클릭 이벤트 핸들러
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                if (e.target.closest('.nav-link').getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    
-                    // active 클래스 업데이트
-                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                    e.target.closest('.nav-link').classList.add('active');
-                    
-                    // 타겟 섹션으로 스크롤
-                    const targetId = e.target.closest('.nav-link').getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    
-                    if (targetElement) {
+
+
+    <!-- =========================
+         Main
+    ========================== -->
+
+    <main class="main-content">
+
+        <header
+            id="top"
+            class="header"
+        >
+
+            <h1>
+                세종시 노인보호구역
+            </h1>
+
+            <p class="lead">
+                노인의 안전한 보행을 위한 최적지 선정
+            </p>
+
+        </header>
+
+
+
+        <div class="content-wrapper">
+
+
+            <!-- =====================
+                 통계 현황
+            ====================== -->
+
+            <section
+                id="stats"
+                class="stats-grid"
+            >
+
+                <div class="stat-card">
+
+                    <div class="stat-content">
+
+                        <i
+                            data-lucide="users"
+                            class="stat-icon"
+                        ></i>
+
+                        <div>
+
+                            <p class="stat-label">
+                                노인 인구
+                            </p>
+
+                            <p class="stat-value">
+                                45,043명
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="stat-card">
+
+                    <div class="stat-content">
+
+                        <i
+                            data-lucide="map-pin"
+                            class="stat-icon"
+                        ></i>
+
+                        <div>
+
+                            <p class="stat-label">
+                                보호구역 수
+                            </p>
+
+                            <p class="stat-value">
+                                9개
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="stat-card">
+
+                    <div class="stat-content">
+
+                        <i
+                            data-lucide="alert-triangle"
+                            class="stat-icon"
+                        ></i>
+
+                        <div>
+
+                            <p class="stat-label">
+                                2023년 사망자 수
+                            </p>
+
+                            <p class="stat-value">
+                                23건
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="stat-card">
+
+                    <div class="stat-content">
+
+                        <i
+                            data-lucide="shield"
+                            class="stat-icon"
+                        ></i>
+
+                        <div>
+
+                            <p class="stat-label">
+                                CCTV 설치율
+                            </p>
+
+                            <p class="stat-value">
+                                33.3%
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =====================
+                 차트
+            ====================== -->
+
+            <section
+                id="charts"
+                class="charts-grid"
+            >
+
+                <div class="chart-card">
+
+                    <h2 class="chart-title">
+                        노인 인구 추이
+                    </h2>
+
+                    <div class="chart-container">
+
+                        <canvas
+                            id="populationChart"
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="chart-card">
+
+                    <h2 class="chart-title">
+                        교통사고 추이
+                    </h2>
+
+                    <div class="chart-container">
+
+                        <canvas
+                            id="accidentChart"
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =====================
+                 지도
+            ====================== -->
+
+            <section
+                id="map-section"
+                class="map-card"
+            >
+
+                <h2 class="chart-title">
+                    노인보호구역 지도
+                </h2>
+
+                <div id="map"></div>
+
+            </section>
+
+
+
+            <!-- =====================
+                 프로젝트 개요
+            ====================== -->
+
+            <section
+                id="project"
+                class="overview-card"
+            >
+
+                <h2 class="overview-title">
+                    프로젝트 개요
+                </h2>
+
+
+                <div class="overview-content">
+
+
+                    <div class="overview-item">
+
+                        <i
+                            data-lucide="chevron-right"
+                            class="overview-icon"
+                        ></i>
+
+                        <div>
+
+                            <h3>
+                                개발 목표
+                            </h3>
+
+                            <p>
+                                세종시의 노인보호구역 현황과
+                                교통안전 시설 설치 현황을 파악하고,
+                                노인 인구 밀집 지역과 교통사고
+                                다발 지역을 중심으로 보호구역
+                                최적지를 선정
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="overview-item">
+
+                        <i
+                            data-lucide="chevron-right"
+                            class="overview-icon"
+                        ></i>
+
+                        <div>
+
+                            <h3>
+                                주요 기능
+                            </h3>
+
+                            <p>
+                                데이터 수집, 데이터 전처리,
+                                데이터 모델링, 시각화 및 탐색을
+                                통한 종합적인 분석
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="overview-item">
+
+                        <i
+                            data-lucide="chevron-right"
+                            class="overview-icon"
+                        ></i>
+
+                        <div>
+
+                            <h3>
+                                기대 효과
+                            </h3>
+
+                            <p>
+                                노인 교통사고 감소,
+                                보행 환경 개선,
+                                지역사회 인식 제고,
+                                노인 안전 정책 기반 마련
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+    /* =========================
+       Lucide Icons
+    ========================= */
+
+    lucide.createIcons();
+
+
+
+    /* =========================
+       모바일 사이드바
+    ========================= */
+
+    const mobileMenuBtn =
+        document.getElementById('mobileMenuBtn');
+
+    const sidebar =
+        document.getElementById('sidebar');
+
+    const sidebarOverlay =
+        document.getElementById('sidebarOverlay');
+
+
+    function openSidebar() {
+
+        sidebar.classList.add('open');
+
+        sidebarOverlay.classList.add('active');
+
+        document.body.classList.add('menu-open');
+
+        mobileMenuBtn.setAttribute(
+            'aria-expanded',
+            'true'
+        );
+
+        mobileMenuBtn.setAttribute(
+            'aria-label',
+            '메뉴 닫기'
+        );
+    }
+
+
+    function closeSidebar() {
+
+        sidebar.classList.remove('open');
+
+        sidebarOverlay.classList.remove('active');
+
+        document.body.classList.remove('menu-open');
+
+        mobileMenuBtn.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+        mobileMenuBtn.setAttribute(
+            'aria-label',
+            '메뉴 열기'
+        );
+    }
+
+
+    function toggleSidebar() {
+
+        if (
+            sidebar.classList.contains('open')
+        ) {
+            closeSidebar();
+
+        } else {
+            openSidebar();
+        }
+    }
+
+
+    mobileMenuBtn.addEventListener(
+        'click',
+        toggleSidebar
+    );
+
+
+    sidebarOverlay.addEventListener(
+        'click',
+        closeSidebar
+    );
+
+
+    document.addEventListener(
+        'keydown',
+        (event) => {
+
+            if (
+                event.key === 'Escape' &&
+                sidebar.classList.contains('open')
+            ) {
+                closeSidebar();
+            }
+
+        }
+    );
+
+
+    window.addEventListener(
+        'resize',
+        () => {
+
+            if (window.innerWidth > 1024) {
+                closeSidebar();
+            }
+
+        }
+    );
+
+
+
+    /* =========================
+       네비게이션
+    ========================= */
+
+    const navLinks =
+        document.querySelectorAll('.nav-link');
+
+
+    navLinks.forEach(link => {
+
+        link.addEventListener(
+            'click',
+            (event) => {
+
+                const href =
+                    link.getAttribute('href');
+
+
+                /* -------------------------
+                   내부 섹션 이동
+                ------------------------- */
+
+                if (href.startsWith('#')) {
+
+                    event.preventDefault();
+
+
+                    navLinks.forEach(nav => {
+                        nav.classList.remove(
+                            'active'
+                        );
+                    });
+
+
+                    link.classList.add('active');
+
+
+                    const target =
+                        document.querySelector(
+                            href
+                        );
+
+
+                    if (target) {
+
                         const headerOffset = 20;
-                        const elementPosition = targetElement.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        const position =
+                            target
+                                .getBoundingClientRect()
+                                .top +
+                            window.pageYOffset -
+                            headerOffset;
+
 
                         window.scrollTo({
-                            top: offsetPosition,
-                            behavior: "smooth"
+                            top: position,
+                            behavior: 'smooth'
                         });
+
                     }
+
+
+                    /* 모바일 메뉴 닫기 */
+
+                    if (
+                        window.innerWidth <= 1024
+                    ) {
+                        closeSidebar();
+                    }
+
                 }
-            });
-        });
 
-        // zones 데이터 정의
-        const zones = [
-            { 
-                name: "Zone 1", 
-                lat: 36.528872, 
-                lon: 127.367796,
-                address: "세종시 고운동", 
-                population: 1200, 
-                accidents: 3 
-            },
-            { 
-                name: "Zone 2", 
-                lat: 36.464646, 
-                lon: 127.280006,
-                address: "세종시 아름동", 
-                population: 800, 
-                accidents: 5 
-            },
-            { 
-                name: "Zone 3", 
-                lat: 36.679749, 
-                lon: 127.205951,
-                address: "세종시 반곡동", 
-                population: 950, 
-                accidents: 2 
-            },
-            { 
-                name: "Zone 4", 
-                lat: 36.562973, 
-                lon: 127.283338,
-                address: "세종시 도담동", 
-                population: 1100, 
-                accidents: 4 
-            },
-            { 
-                name: "Zone 5", 
-                lat: 36.722422, 
-                lon: 127.157880,
-                address: "세종시 소담동", 
-                population: 650, 
-                accidents: 1 
+
+                /* -------------------------
+                   page.html / search.html
+                ------------------------- */
+
+                else {
+
+                    if (
+                        window.innerWidth <= 1024
+                    ) {
+                        closeSidebar();
+                    }
+
+                    /*
+                    기본 <a href> 기능을 그대로
+                    사용하므로 별도로
+                    window.location.href를 사용할
+                    필요가 없습니다.
+                    */
+
+                }
+
             }
-        ];
+        );
 
-        // 인구 추이 차트
-        const populationCtx = document.getElementById('populationChart').getContext('2d');
-        const accidentCtx = document.getElementById('accidentChart').getContext('2d');
+    });
 
-        new Chart(populationCtx, {
+
+
+    /* =========================
+       Zone 데이터
+    ========================= */
+
+    const zones = [
+
+        {
+            name: "Zone 1",
+            lat: 36.528872,
+            lon: 127.367796,
+            address: "세종시 고운동",
+            population: 1200,
+            accidents: 3
+        },
+
+        {
+            name: "Zone 2",
+            lat: 36.464646,
+            lon: 127.280006,
+            address: "세종시 아름동",
+            population: 800,
+            accidents: 5
+        },
+
+        {
+            name: "Zone 3",
+            lat: 36.679749,
+            lon: 127.205951,
+            address: "세종시 반곡동",
+            population: 950,
+            accidents: 2
+        },
+
+        {
+            name: "Zone 4",
+            lat: 36.562973,
+            lon: 127.283338,
+            address: "세종시 도담동",
+            population: 1100,
+            accidents: 4
+        },
+
+        {
+            name: "Zone 5",
+            lat: 36.722422,
+            lon: 127.157880,
+            address: "세종시 소담동",
+            population: 650,
+            accidents: 1
+        }
+
+    ];
+
+
+
+    /* =========================
+       Chart 공통 설정
+    ========================= */
+
+    const chartFontSize =
+        window.innerWidth <= 480
+            ? 10
+            : 12;
+
+
+
+    /* =========================
+       노인 인구 차트
+    ========================= */
+
+    const populationCtx =
+        document
+            .getElementById(
+                'populationChart'
+            )
+            .getContext('2d');
+
+
+    new Chart(
+        populationCtx,
+        {
+
             type: 'line',
-            data: {
-                labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
-                datasets: [{
-                    label: '노인 인구 (%)',
-                    data: [8.2, 8.9, 9.4, 9.8, 10.4, 11.5],
-                    borderColor: '#3b82f6',
-                    borderWidth: 2,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: { display: true, text: '노인 인구 변화 추이' }
-                }
-            }
-        });
 
-        // 교통사고 추이 차트
-        new Chart(accidentCtx, {
+            data: {
+
+                labels: [
+                    '2019',
+                    '2020',
+                    '2021',
+                    '2022',
+                    '2023',
+                    '2024'
+                ],
+
+                datasets: [
+
+                    {
+                        label: '노인 인구 (%)',
+
+                        data: [
+                            8.2,
+                            8.9,
+                            9.4,
+                            9.8,
+                            10.4,
+                            11.5
+                        ],
+
+                        borderColor:
+                            '#3b82f6',
+
+                        backgroundColor:
+                            'rgba(59,130,246,0.08)',
+
+                        borderWidth: 2,
+
+                        pointRadius: 3,
+
+                        pointHoverRadius: 5,
+
+                        tension: 0.3,
+
+                        fill: true
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+
+                plugins: {
+
+                    legend: {
+                        labels: {
+                            font: {
+                                size:
+                                    chartFontSize
+                            }
+                        }
+                    },
+
+                    title: {
+                        display: true,
+                        text:
+                            '노인 인구 변화 추이'
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+                        ticks: {
+                            font: {
+                                size:
+                                    chartFontSize
+                            }
+                        }
+                    },
+
+                    y: {
+                        beginAtZero: false,
+
+                        ticks: {
+                            font: {
+                                size:
+                                    chartFontSize
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+
+    /* =========================
+       교통사고 차트
+    ========================= */
+
+    const accidentCtx =
+        document
+            .getElementById(
+                'accidentChart'
+            )
+            .getContext('2d');
+
+
+    new Chart(
+        accidentCtx,
+        {
+
             type: 'line',
+
             data: {
-                labels: ['2019', '2020', '2021', '2022', '2023'],
-                datasets: [{
-                    label: '교통사고 건수',
-                    data: [76, 79, 73, 82, 104],
-                    borderColor: '#ef4444',
-                    borderWidth: 2,
-                    tension: 0.3
-                }]
+
+                labels: [
+                    '2019',
+                    '2020',
+                    '2021',
+                    '2022',
+                    '2023'
+                ],
+
+                datasets: [
+
+                    {
+                        label:
+                            '교통사고 건수',
+
+                        data: [
+                            76,
+                            79,
+                            73,
+                            82,
+                            104
+                        ],
+
+                        borderColor:
+                            '#ef4444',
+
+                        backgroundColor:
+                            'rgba(239,68,68,0.08)',
+
+                        borderWidth: 2,
+
+                        pointRadius: 3,
+
+                        pointHoverRadius: 5,
+
+                        tension: 0.3,
+
+                        fill: true
+                    }
+
+                ]
+
             },
+
             options: {
+
                 responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+
                 plugins: {
-                    title: { display: true, text: '교통사고 발생 추이' }
+
+                    legend: {
+
+                        labels: {
+
+                            font: {
+                                size:
+                                    chartFontSize
+                            }
+
+                        }
+
+                    },
+
+                    title: {
+
+                        display: true,
+
+                        text:
+                            '교통사고 발생 추이'
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        ticks: {
+
+                            font: {
+                                size:
+                                    chartFontSize
+                            }
+
+                        }
+
+                    },
+
+                    y: {
+
+                        beginAtZero: false,
+
+                        ticks: {
+
+                            font: {
+                                size:
+                                    chartFontSize
+                            }
+
+                        }
+
+                    }
+
                 }
+
             }
-        });
 
-        // 지도 초기화
-        const map = L.map('map').setView([36.50972725, 127.2591418], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+        }
+    );
 
-        // 지도에 보호구역 표시
-        zones.forEach(zone => {
-            // 마커 추가
-            L.marker([zone.lat, zone.lon])
-                .addTo(map)
-                .bindPopup(`
-                    <b>${zone.name}</b><br>
-                    주소: ${zone.address}<br>
-                    노인 인구: ${zone.population}명<br>
-                    사고 건수: ${zone.accidents}건
-                `);
-            
-            // 보호구역 원 추가
-            L.circle([zone.lat, zone.lon], {
-                color: '#3b82f6',
-                fillColor: '#3b82f6',
-                fillOpacity: 0.2,
-                radius: 300
-            }).addTo(map);
-        });
-    </script>
+
+
+    /* =========================
+       Leaflet 지도
+    ========================= */
+
+    const map = L
+        .map('map')
+        .setView(
+            [
+                36.50972725,
+                127.2591418
+            ],
+            12
+        );
+
+
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+
+            attribution:
+                '&copy; OpenStreetMap contributors',
+
+            maxZoom: 19
+
+        }
+    ).addTo(map);
+
+
+
+    /* =========================
+       보호구역 표시
+    ========================= */
+
+    zones.forEach(zone => {
+
+        L.marker(
+            [
+                zone.lat,
+                zone.lon
+            ]
+        )
+
+        .addTo(map)
+
+        .bindPopup(`
+            <div style="
+                min-width: 160px;
+                line-height: 1.6;
+            ">
+                <strong>
+                    ${zone.name}
+                </strong>
+
+                <br>
+
+                주소:
+                ${zone.address}
+
+                <br>
+
+                노인 인구:
+                ${zone.population.toLocaleString()}명
+
+                <br>
+
+                사고 건수:
+                ${zone.accidents}건
+            </div>
+        `);
+
+
+        L.circle(
+            [
+                zone.lat,
+                zone.lon
+            ],
+            {
+
+                color:
+                    '#3b82f6',
+
+                weight: 2,
+
+                fillColor:
+                    '#3b82f6',
+
+                fillOpacity:
+                    0.18,
+
+                radius:
+                    300
+
+            }
+        ).addTo(map);
+
+    });
+
+
+
+    /* =========================
+       모바일 지도 크기 보정
+    ========================= */
+
+    window.addEventListener(
+        'resize',
+        () => {
+
+            setTimeout(
+                () => {
+                    map.invalidateSize();
+                },
+                150
+            );
+
+        }
+    );
+
+</script>
+
 </body>
 </html>
